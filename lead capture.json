@@ -1,0 +1,172 @@
+{
+  "name": "lead capture",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "1U1afE-eJCpHl51OJpte5GQz_PSCxfUUF47Z9P68_BOs",
+          "mode": "list",
+          "cachedResultName": "Contact Form (Responses)",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1U1afE-eJCpHl51OJpte5GQz_PSCxfUUF47Z9P68_BOs/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 337677568,
+          "mode": "list",
+          "cachedResultName": "Form Responses 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1U1afE-eJCpHl51OJpte5GQz_PSCxfUUF47Z9P68_BOs/edit#gid=337677568"
+        },
+        "event": "rowAdded",
+        "options": {}
+      },
+      "id": "77cd8440-afcd-4288-9434-c5a74fb23990",
+      "name": "Google Sheets Trigger",
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "name": "full_name",
+              "value": "={{ $json['Full Name'] }}"
+            },
+            {
+              "name": "email",
+              "value": "={{ $json.Email }}"
+            },
+            {
+              "name": "phone",
+              "value": "={{ $json['Phone (optional but smart)'] }}"
+            },
+            {
+              "name": "inquiry",
+              "value": "={{ $json['Inquiry / Goal'] }}"
+            },
+            {
+              "name": "source",
+              "value": "Google Form"
+            },
+            {
+              "name": "submitted_at",
+              "value": "={{ $json.Timestamp }}"
+            },
+            {
+              "name": "priority",
+              "value": "Unassigned"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b5d4426e-30fa-4f4d-877a-164af6f28616",
+      "name": "Set Node - Normalize Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [
+        240,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.email }}",
+        "subject": "We received your request",
+        "emailType": "text",
+        "message": "=Hi {{ $json.full_name }},\n    |Thanks for reaching out.We’ve received your request and will get in touch with you shortly.\n  Best regards, \n   Team member",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "id": "5f6a4efd-22d1-4d22-b08b-70baa075d0f8",
+      "name": "Gmail - Lead Confirmation",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        512,
+        0
+      ],
+      "webhookId": "3b0a60f4-cf29-4104-90ac-e7de0e94f588"
+    },
+    {
+      "parameters": {
+        "sendTo": "=mukeshmoharana74@gmail.com",
+        "subject": "New Lead",
+        "message": "=New inquiry received.\n\nName: {{ $('Set Node - Normalize Data').item.json.full_name }}\nEmail: {{ $('Set Node - Normalize Data').item.json.email }}\nPhone: {{ $('Set Node - Normalize Data').item.json.phone }}\nInquiry: {{ $('Set Node - Normalize Data').item.json.inquiry }}\nSubmitted at: {{ $('Set Node - Normalize Data').item.json.submitted_at }}\nPlease follow up manually.\n",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "id": "cde69c14-6dad-4629-92b3-58151388ef37",
+      "name": "Gmail - Coach Notification",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        784,
+        0
+      ],
+      "webhookId": "e28bcb4c-47a5-47ae-83bb-324ac5f82b9a"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Sheets Trigger": {
+      "main": [
+        [
+          {
+            "node": "Set Node - Normalize Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Node - Normalize Data": {
+      "main": [
+        [
+          {
+            "node": "Gmail - Lead Confirmation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail - Lead Confirmation": {
+      "main": [
+        [
+          {
+            "node": "Gmail - Coach Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "eb5b21a8-1407-4bcb-9c9d-12b80288a88d",
+  "meta": {
+    "instanceId": "817537ccf45e86df6628493ea2633ffbe1226f94f1007e5cee39998aedda52c5"
+  },
+  "id": "sWJJiZ6MpmYV9QPB1gsbI",
+  "tags": []
+}
